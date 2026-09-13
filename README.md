@@ -1,5 +1,7 @@
 # workspace-launcher
 
+🌐 [English](README.en.md)
+
 Un script que abre VS Code y una terminal por cada servicio de tu stack
 (frontend, backend, lo que sea), configurado en un JSON. Pensado para no
 repetir siempre los mismos comandos de arranque.
