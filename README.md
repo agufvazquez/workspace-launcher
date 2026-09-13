@@ -2,7 +2,7 @@
 
 Un script que abre VS Code y una terminal por cada servicio de tu stack
 (frontend, backend, lo que sea), configurado en un JSON. Pensado para no
-repetir siempre los mismos comandos de arranque al sentarte a laburar.
+repetir siempre los mismos comandos de arranque.
 
 Detecta en tiempo de ejecución si corre sobre **WSL** o **Linux nativo** y
 adapta cómo abre la ventana de terminal en cada caso.
@@ -27,7 +27,7 @@ chmod +x workspace-launcher.sh
 ```
 
 Editá `config.json` con tus proyectos (ver esquema abajo). Este archivo
-está en `.gitignore` a propósito: es tu configuración local, no se sube.
+está en `.gitignore`.
 
 ## Uso
 
