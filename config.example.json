@@ -1,0 +1,24 @@
+{
+  "editor_cmd": "code",
+  "linux_terminal": "auto",
+  "services": [
+    {
+      "name": "my-frontend",
+      "dir": "~/projects/my-frontend",
+      "shell": "zsh",
+      "setup": ["nvm use 20"],
+      "run": "yarn start",
+      "editor": true,
+      "terminal": true
+    },
+    {
+      "name": "my-backend",
+      "dir": "~/projects/my-backend",
+      "shell": "zsh",
+      "setup": ["source venv/bin/activate"],
+      "run": "python3.11 src/manage.py runserver",
+      "editor": true,
+      "terminal": true
+    }
+  ]
+}
