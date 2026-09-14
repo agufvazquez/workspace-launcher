@@ -94,6 +94,14 @@ launch_terminal_wsl() {
   cmd.exe /c start "" wsl.exe -e "$shell" "$launcher"
 }
 
+launch_terminal_macos() {
+  local launcher="$1"
+  local escaped="${launcher//\\/\\\\}"
+  escaped="${escaped//\"/\\\"}"
+  osascript -e "tell application \"Terminal\" to do script \"$escaped\"" >/dev/null
+  osascript -e 'tell application "Terminal" to activate' >/dev/null
+}
+
 build_launcher() {
   local name="$1" dir="$2" shell="$3" run="$4" setup_json="$5"
   local launcher_path="/tmp/workspace-launcher_${name}.sh"
@@ -142,34 +150,44 @@ start_service() {
     case "$PLATFORM" in
       wsl) launch_terminal_wsl "$launcher" "$shell" ;;
       linux) launch_terminal_linux "$launcher" ;;
+      macos) launch_terminal_macos "$launcher" ;;
       *) echo "[$name] plataforma '$PLATFORM' no soportada todavía." >&2 ;;
     esac
   fi
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-  usage
-  exit 0
-fi
-
-mapfile -t ALL_NAMES < <(jq -r '.services[].name' "$CONFIG_FILE")
-
-if [[ "${1:-}" == "--list" ]]; then
-  printf '%s\n' "${ALL_NAMES[@]}"
-  exit 0
-fi
-
-if [[ $# -gt 0 ]]; then
-  SELECTED=("$@")
-else
-  SELECTED=("${ALL_NAMES[@]}")
-fi
-
-for name in "${SELECTED[@]}"; do
-  service_json="$(jq -c --arg n "$name" '.services[] | select(.name == $n)' "$CONFIG_FILE")"
-  if [[ -z "$service_json" ]]; then
-    echo "Servicio '$name' no encontrado en config.json" >&2
-    continue
+main() {
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    usage
+    exit 0
   fi
-  start_service "$service_json"
-done
+
+  mapfile -t ALL_NAMES < <(jq -r '.services[].name' "$CONFIG_FILE")
+
+  if [[ "${1:-}" == "--list" ]]; then
+    printf '%s\n' "${ALL_NAMES[@]}"
+    exit 0
+  fi
+
+  local SELECTED
+  if [[ $# -gt 0 ]]; then
+    SELECTED=("$@")
+  else
+    SELECTED=("${ALL_NAMES[@]}")
+  fi
+
+  local name service_json
+  for name in "${SELECTED[@]}"; do
+    service_json="$(jq -c --arg n "$name" '.services[] | select(.name == $n)' "$CONFIG_FILE")"
+    if [[ -z "$service_json" ]]; then
+      echo "Servicio '$name' no encontrado en config.json" >&2
+      continue
+    fi
+    start_service "$service_json"
+  done
+}
+
+# Permite sourcear este archivo (p. ej. desde tests) sin disparar la ejecución principal.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+fi
