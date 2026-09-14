@@ -6,8 +6,8 @@ A script that opens VS Code and a terminal for each service in your stack
 (frontend, backend, whatever), configured via a JSON file. Meant to avoid
 retyping the same startup commands every time.
 
-Detects at runtime whether it's running on **WSL** or **native Linux** and
-adapts how it opens the terminal window accordingly.
+Detects at runtime whether it's running on **WSL**, **native Linux**, or
+**macOS** and adapts how it opens the terminal window accordingly.
 
 ## Requirements
 
@@ -18,6 +18,7 @@ adapts how it opens the terminal window accordingly.
 - WSL: `cmd.exe` and `wsl.exe` reachable (available by default)
 - Native Linux: some terminal emulator installed (gnome-terminal,
   konsole, xfce4-terminal, alacritty, kitty, or xterm)
+- macOS: `osascript` (available by default) and Terminal.app
 
 ## Installation
 
@@ -86,8 +87,8 @@ repeat it in `setup`.
 - **Native Linux**: detected via `uname -s`. Autodetects the first
   available terminal emulator from a known list, or uses whatever you
   set in `linux_terminal`.
-- **macOS**: not supported yet (a natural next step, using
-  `osascript`/`open -a Terminal`).
+- **macOS**: detected via `uname -s`. Opens a new Terminal.app window
+  with `osascript` and runs the launcher there.
 
 ## How it works internally
 
@@ -96,3 +97,13 @@ For each service, it generates a temporary launcher script at
 into the directory, runs `setup` + `run`, and leaves the shell open at
 the end (`exec $shell`). It then opens the editor and the terminal
 according to the detected platform.
+
+## Tests
+
+```bash
+./tests/test_macos.sh
+```
+
+Mocks `uname`, `grep`, and `osascript` to validate platform detection
+and the Terminal.app command it builds, without needing to run on
+macOS.
